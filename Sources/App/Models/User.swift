@@ -16,8 +16,12 @@ import Fluent
  */
 final class User: Model, Content, @unchecked Sendable {
     
+    // MARK: - Nom de la table
+    
     /// Nom de la table dans base de données.
     static let schema = "users"
+    
+    // MARK: - Colonnes
     
     /// Identifiant unique de l'utilisatreur (clé primaire).
     /// Ce champ est mappé à la colonne `id_user` dans la base de données.
@@ -66,6 +70,8 @@ final class User: Model, Content, @unchecked Sendable {
     @Field(key: "eat_choice")
     var eatChoice: [Int]?
     
+    // MARK: - Constructeurs
+    
     /// Initialiseur par défaut requis pour Fluent.
     init() {}
     
@@ -82,6 +88,8 @@ final class User: Model, Content, @unchecked Sendable {
         self.eatChoice = eatChoice
     }
     
+    // MARK: - Fonctions
+
     /// Conversion de l'utilisateur en `UserDTO`, un objet de transfert de données.
     ///
     /// Cette méthode permet de transformer un utilisateur en un format DTO (Data Transfer Object),

@@ -10,6 +10,11 @@ func routes(_ app: Application) throws {
         "Hello, world!"
     }
 
-    try app.register(collection: TodoController())
     try app.register(collection: UserController())
+    try app.register(collection: PhysicalActivityController())
+    try app.register(collection: TypeActivityController())
+    try app.register(collection: GoalActivityController())
+    try app.register(collection: FoodController())
+    try app.register(collection: MealController())
+    try app.register(collection: CompositionController())
 }

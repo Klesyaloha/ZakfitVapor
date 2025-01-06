@@ -10,8 +10,7 @@ import Vapor
 
 /**
     **Structure qui implémente l'interface RouteCollection.**
-    Dans `Vapor`, une `RouteCollection` est un ensemble de routes qui sont regroupées
- sous un même contrôleur pour mieux organiser les endpoints de l'API ou de l'appication web.
+    Dans `Vapor`, une `RouteCollection` est un ensemble de routes qui sont regroupées sous un même contrôleur pour mieux organiser les endpoints de l'API ou de l'appication web.
  */
 struct UserController : RouteCollection {
     
@@ -49,7 +48,7 @@ struct UserController : RouteCollection {
     }
     
     /// **Fonction qui crée un user.**
-    /// Décode le corps de la requête pour extraire les informations de l'user
+    /// Décode le corps de la requête pour extraire les informations de l'user.
     /// Cryptage du mot de passe avec Brypt.
     /// - Parameters:
     ///   - req: Requête HTTP que le serveur a reçue. Contient toutes les infos de la requête :
@@ -75,12 +74,14 @@ struct UserController : RouteCollection {
         return user.toDTO()
     }
     
-    /// **Fonction qui supprime un user**
-    /// Elle récupère un user par son ID puis le supprime de la BA.
+    /// **Fonction qui supprime un utilisateur**
+    /// Cette fonction récupère un utilisateur par son ID, puis le supprime de la base de données.
+    ///
     /// - Parameters:
-    ///   - req: Requête HTTP que le serveur a reçue. Contient toutes les infos de la requête :
-    ///   (en-têtes HTTP, paramètre de l'URL, données POST).
-    /// - Returns: Un status HTTP indiquant le si l'opération à réussie..
+    ///   - req: Requête HTTP reçue par le serveur. Contient toutes les informations nécessaires,
+    ///          telles que les en-têtes HTTP, les paramètres de l'URL, et les données POST.
+    ///
+    /// - Returns: Un statut HTTP indiquant si l'opération a réussi.
     @Sendable
     func delete(req: Request) async throws -> HTTPStatus {
         guard let utilisateur = try await
@@ -101,8 +102,7 @@ struct UserController : RouteCollection {
     /// - Returns: Un objet de type `User`.
     @Sendable
     func update(req: Request) async throws -> User {
-        guard let userIDString = req.parameters.get("userID"),
-              let userID = UUID(uuidString: userIDString) else {
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
             throw Abort(.badRequest, reason: "ID d'utilisateur invalide.")
         }
         let updatedFields = try req.content.decode(PartialUserUpdate.self)

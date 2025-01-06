@@ -17,16 +17,16 @@ public func configure(_ app: Application) async throws {
         database: Environment.get("DATABASE_NAME") ?? "zakfit_db"
     ), as: .mysql)
 
-    app.migrations.add(CreateTodo())
+//    app.migrations.add(CreateTodo())
     
     guard let secret = Environment.get("SECRET_KEY") else {
         fatalError("JWT secret is not set in environment variables")
     }
     
     // Création de la clé de signature avec l'algo HMAC
-    let hmacKey = HMACKey (from: Data(secret.utf8))
+    let hmacKey = HMACKey(from: Data(secret.utf8))
     // Ajout de la clé de signature a la liste des clés JWT en précisant que l'on utilise l'algorithme SHA-256
-    await app.jwt.keys.add (hmac: hmacKey, digestAlgorithm: .sha256)
+    await app.jwt.keys.add(hmac: hmacKey, digestAlgorithm: .sha256)
     
     // register routes
     try routes(app)
