@@ -29,6 +29,7 @@ struct UserController : RouteCollection {
         // Authentification par token
         let tokenProtected = users.grouped(TokenSession.authenticator(), TokenSession.guardMiddleware())
         tokenProtected.group(":userID") { user in
+            user.post("update-password", use: self.updatePassword)
             user.get(use: self.getUserByID)
             user.put(use: self.update)
             user.delete(use: self.delete)
@@ -154,5 +155,27 @@ struct UserController : RouteCollection {
         
         // Retourne une instance de LoginResponse
         return LoginResponse(token: token, user: user)
+    }
+    
+    @Sendable
+    func updatePassword(req: Request) async throws -> HTTPStatus {
+        let user = try req.auth.require(User.self) // Récupère l'utilisateur authentifié
+        let input = try req.content.decode(UpdatePasswordRequest.self) // Récupère les données envoyées
+
+        // Vérifier l'ancien mot de passe
+        guard try Bcrypt.verify(input.oldPassword, created: user.password) else {
+            throw Abort(.unauthorized, reason: "Ancien mot de passe incorrect.")
+        }
+
+        // Vérifier que le nouveau mot de passe n'est pas identique à l'ancien
+        guard input.oldPassword != input.newPassword else {
+            throw Abort(.badRequest, reason: "Le nouveau mot de passe ne peut pas être identique à l'ancien.")
+        }
+
+        // Hasher le nouveau mot de passe et l'enregistrer
+        user.password = try Bcrypt.hash(input.newPassword)
+        try await user.save(on: req.db)
+
+        return .ok
     }
 }

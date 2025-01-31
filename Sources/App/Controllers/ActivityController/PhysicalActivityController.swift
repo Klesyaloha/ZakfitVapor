@@ -69,7 +69,6 @@ struct PhysicalActivityController: RouteCollection {
             typeActivityID: input.typeActivityID,
             userID: user.id! // Force-unwrap car on sait que user existe et a un id non nil
         )
-        
         try await newActivity.save(on: req.db)
         return newActivity
     }

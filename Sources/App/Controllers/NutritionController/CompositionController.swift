@@ -22,6 +22,7 @@ struct CompositionController: RouteCollection {
         let tokenProtected = compositions.grouped(JWTMiddleware())
         
         tokenProtected.post(use: self.create)          // Création d'une composition
+        tokenProtected.get(":mealID", use: self.getByMeal)
         tokenProtected.group(":compositionID") { composition in
             composition.delete(use: self.delete)      // Suppression d'une composition
         }
@@ -65,4 +66,30 @@ struct CompositionController: RouteCollection {
         
         return .noContent
     }
+    
+    // MARK: - Fonction GET (récupérer toutes les compositions liées à un meal)
+       
+       /// **Récupère toutes les compositions associées à un repas donné (`mealId`).**
+       ///
+       /// - Ex: `GET /compositions/meal/:mealID`
+    @Sendable
+    func getByMeal(req: Request) async throws -> [Composition] {
+        try req.auth.require(User.self)
+        
+        guard let mealID = req.parameters.get("mealID", as: UUID.self) else {
+            print("❌ Erreur: ID du repas manquant ou invalide.")
+            throw Abort(.badRequest, reason: "ID du repas manquant ou invalide.")
+        }
+
+        print("✅ Requête reçue pour mealID:", mealID)
+
+        let compositions = try await Composition.query(on: req.db)
+            .filter(\.$meal.$id == mealID)  // ⚠️ Ce "$id" peut être la source du problème
+            .all()
+
+        print("🔎 Nombre de compositions trouvées:", compositions.count)
+        
+        return compositions
+    }
+
 }

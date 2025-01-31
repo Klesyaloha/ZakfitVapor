@@ -7,6 +7,7 @@
 
 import Vapor
 import Fluent
+import SQLKit
 
 /// **Contrôleur pour gérer les repas.**
 /// Ce contrôleur fournit des routes pour créer, lire, mettre à jour et supprimer des repas.
@@ -71,10 +72,11 @@ struct MealController: RouteCollection {
     
     // MARK: - Fonction GET ALL
     
-    /// **Récupération de tous les repas.**
+    /// **Récupération de tous les repas en requête SQL brut.**
     @Sendable
     func getAll(req: Request) async throws -> [Meal] {
-        return try await Meal.query(on: req.db).all()
+        let sql = req.db as! SQLDatabase
+        return try await sql.raw("SELECT * FROM meals").all(decodingFluent: Meal.self)
     }
     
     // MARK: - Fonction GET BY ID
@@ -106,7 +108,7 @@ struct MealController: RouteCollection {
             throw Abort(.notFound, reason: "Repas introuvable.")
         }
         
-        let updatedData = try req.content.decode(Meal.self)
+        let updatedData = try req.content.decode(PartialMeal.self)
         
         existingMeal.nameMeal = updatedData.nameMeal
         existingMeal.typeOfMeal = updatedData.typeOfMeal
